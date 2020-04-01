@@ -6,6 +6,7 @@ from sklearn.preprocessing import KBinsDiscretizer
 from sklearn.naive_bayes import GaussianNB
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
 
 
 def impute_nominal_attributes(data_frame, columns, strategy="most_frequent"):
@@ -29,35 +30,23 @@ def merge_arrays_to_frames(array1, array1_columns, array2, array2_columns):
 
 
 def encode_nominal_attributes(data_frame, columns):
-    encoder = OneHotEncoder(dtype=np.int, sparse=True)
+    encoder = OneHotEncoder(dtype=int, sparse=True)
 
     nominal = pd.DataFrame(
         encoder.fit_transform(data_frame[columns])
-            .toarray())
+            .toarray(), dtype=int)
 
     nominal.columns = encoder.get_feature_names().tolist()
     return nominal
 
 
 def discretize_numerical_attributes(data_frame, columns):
-    disc = KBinsDiscretizer(n_bins=2, encode='onehot',
-                            strategy='kmeans')
-
-    numerical = pd.DataFrame(
-        disc.fit_transform(data_frame[columns])
-            .toarray())
-
-    for i in range(len(disc.bin_edges_)):
-        print("binary edge for ", columns[i], "numeric column")
-        print(disc.bin_edges_[i])
-        print()
-
-    return numerical
+    data_frame[columns].dtype = float
+    return data_frame[columns]
 
 
 def pre_processing(X):
-    X.columns = ['sex', 'blood_type', 'edu_level', 'name']
-
+    X.replace({'?': np.NaN}, inplace=True)
     # drop rows if all are missing values
     X.dropna(axis=0, thresh=1, inplace=True)
 
@@ -65,19 +54,18 @@ def pre_processing(X):
     X.reset_index(inplace=True)
     X.drop(['index'], axis=1, inplace=True)
 
-    nominal_columns = ["sex", "blood_type"]
-    numerical_columns = ['edu_level', 'name']
+    nominal_columns = ['A1', 'A3', 'A4', 'A6', 'A8', 'A9', 'A11', 'A13']
+    numerical_columns = ['A2', 'A5', 'A7', 'A10', 'A12', 'A14']
 
     x = impute_nominal_attributes(X, nominal_columns)
     y = impute_numerical_attributes(X, numerical_columns)
 
-    X = merge_arrays_to_frames(x, nominal_columns, y, numerical_columns)
+    k = merge_arrays_to_frames(x, nominal_columns, y, numerical_columns)
 
-    no = encode_nominal_attributes(X, nominal_columns)
-
-    nu = discretize_numerical_attributes(X, numerical_columns)
-
-    return pd.concat([no, nu], axis=1)
+    no = encode_nominal_attributes(k, nominal_columns)
+    nu = discretize_numerical_attributes(k, numerical_columns)
+    return no
+    # return pd.concat([no, nu], axis=1)
 
 
 # replace 999 to NaN we can use this for replacing ? in dataset if needed
@@ -86,40 +74,45 @@ def pre_processing(X):
 '''
 We cannot use ordinal encoder since we dont know which are ordinal in those nominal attributes
 '''
+# read training dataset
+data = pd.read_csv('data.csv', delimiter=',')
+# get the labels
+label = data['A16'].tolist()
+# remove the labels from the data frame
+data.drop(['A16'], axis=1, inplace=True)
 
-from sklearn.preprocessing import OneHotEncoder
+# creating labelEncoder
+le = preprocessing.LabelEncoder()
 
-X = pd.DataFrame(
-    [['M', 'O-', 70, 1],
-     ['M', np.NaN, 90, 2],
-     ['F', 'O+', 95, 3],
-     ['F', 'O+', 96, 4],
-     ['F', 'O+', 10, 4],
-     ['M', 'B+', 96, 4],
-     ['F', 'O+', 10, 4],
-     ['F', 'B+', 96, 4],
-     ['M', 'O+', 30, 4],
-     ['F', 'B+', 96, 4],
-     ['M', 'O+', 80, 4],
-     ['F', 'AB', 35, 5],
-     ['F', 'B+', np.NaN, 6]])
+# set this as training data
+X_train = data
+y_train = le.fit_transform(label)
 
-play = ['No', 'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'No', 'No', 'Yes']
-
-r = pre_processing(X)
-
-# Split dataset into training set and test set
-X_train, X_test, y_train, y_test = train_test_split(r.values, play, test_size=0.3)  # 70% training and 30% test
+r = pre_processing(X_train)
 
 # Create a Gaussian Classifier
 model = GaussianNB()
+model.fit(r.values, y_train)
 
-# Train the model using the training sets
-model.fit(X_train, y_train)
+# read training dataset
+test_data = pd.read_excel('testdata.xlsx')
+test_data.columns = data.columns
 
-# Predict the response for test dataset
-y_pred = model.predict(X_test)
+print(test_data)
+# get the labels
+test_label = test_data['A16'].tolist()
+# remove the labels from the data frame
+test_data.drop(['A16'], axis=1, inplace=True)
 
+# set this as training data
+X_test = test_data
+y_test = le.fit_transform(test_label)
+
+k = pre_processing(X_test)
+
+# # Predict the response for test dataset
+y_pred = model.predict(X_test.values)
+#
 # Import scikit-learn metrics module for accuracy calculation
 from sklearn import metrics
 

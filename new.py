@@ -106,7 +106,7 @@ y_pred = model.predict(X_test)
 print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
 
 # read training dataset
-test_data = pd.read_excel('testdata.xlsx')
+test_data = pd.read_excel('testdata.xlsx',header=None)
 test_data.columns = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'A13', 'A14', 'A15']
 
 b = pre_processing(test_data, type='test')

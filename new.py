@@ -106,8 +106,10 @@ y_pred = model.predict(X_test)
 print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
 
 # read training dataset
-test_data = pd.read_excel('testdata.xlsx',header=None)
+test_data = pd.read_excel('testdata.xlsx', header=None)
 test_data.columns = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'A13', 'A14', 'A15']
+
+original_data = test_data.copy()
 
 b = pre_processing(test_data, type='test')
 test_pred = model.predict(b.values)
@@ -115,3 +117,6 @@ test_pred = model.predict(b.values)
 print()
 print("The predicted results for the test data")
 print(le.inverse_transform(test_pred))
+
+original_data['A16'] = le.inverse_transform(test_pred)
+original_data.to_csv("predictions.csv",index=False)

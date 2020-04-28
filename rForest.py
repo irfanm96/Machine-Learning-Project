@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV
 from sklearn import metrics
@@ -70,20 +70,24 @@ def pre_processing(original, type='train'):
 We cannot use ordinal encoder since we dont know which are ordinal in those nominal attributes
 '''
 
-# read training dataset
+#Read training & testing dataset
 data = pd.read_csv('./input/data.csv', delimiter=',')
+test_data = pd.read_csv('./input/testdata.csv', delimiter=',')
+
 # get the labels
 label = data['A16'].tolist()
 # remove the labels from the data frame
 data.drop(['A16'], axis=1, inplace=True)
 
 data = data.drop(['A1','A4','A9'],axis=1)
+test_data = test_data.drop(['A1','A4','A9'],axis=1)
 
 # creating labelEncoder
 le = preprocessing.LabelEncoder()
 
 r = pre_processing(data)
 target = le.fit_transform(label)
+b = pre_processing(test_data, type='test')
 
 # Split dataset into training set and test set
 # 70% training and 30% test
@@ -91,105 +95,26 @@ X_train, X_test, y_train, y_test = train_test_split(r.values, target, test_size=
 
 # Scaling X_train and X_test
 scaler = MinMaxScaler(feature_range=(0, 1))
+rescaledX_Data = scaler.fit_transform(r.values)
 rescaledX_train = scaler.fit_transform(X_train)
 rescaledX_test = scaler.transform(X_test)
-
-rescaledX_Data = scaler.fit_transform(r.values)
+rescaledX_tData = scaler.fit_transform(b.values)
 
 rf = RandomForestClassifier(n_estimators=500)
 rf.fit(rescaledX_Data, target)
 y_pred = rf.predict(rescaledX_test)
 print("Random Forest classifier has accuracy of: ", rf.score(rescaledX_test, y_test))
 
-# Evaluate the confusion_matrix
-# confusion_matrix(y_test, y_pred)
+lmodel = LogisticRegression()
+lmodel.fit(rescaledX_Data, target)
+predicted = lmodel.predict(rescaledX_test)
+print("Logistic Regression Accuracy: ", lmodel.score(rescaledX_test,y_test))
+print(confusion_matrix(y_test,predicted))
 
-# read training dataset
-# test_data = pd.read_excel('testdata.xlsx', header=None)
-test_data = pd.read_csv('./input/testdata.csv', delimiter=',')
-# test_data.columns = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'A13', 'A14', 'A15']
-# print(test_data)
-test_data = test_data.drop(['A1','A4','A9'],axis=1)
+rf_pred = rf.predict(rescaledX_tData)
+lr_pred = lmodel.predict(rescaledX_tData)
 
-original_data = test_data.copy()
-
-b = pre_processing(test_data, type='test')
-
-rescaledX_testData = scaler.transform(b.values)
-
-test_pred = rf.predict(rescaledX_testData)
-
-# print()
-# print("The predicted results for the test data")
-# print(le.inverse_transform(test_pred))
-
-original_data['A16'] = le.inverse_transform(test_pred)
-
-# original_data.to_csv("predictions2.csv",index=False)
-# print("Random Forest classifier has accuracy of: ", rf.score(rescaledX_test, y_test))
-
-# res = pd.DataFrame({ 'id' : range(1, test_pred.size+1 ,1)})
-# res['Category'] = le.inverse_transform(test_pred)
-# res.to_csv("res.csv",index=False)
-
-# n_estimators = [100, 300, 500, 800, 1200]
-# max_depth = [5, 8, 15, 25, 30]
-# min_samples_split = [2, 5, 10, 15, 100]
-# min_samples_leaf = [1, 2, 5, 10] 
-
-# hyperF = dict(n_estimators = n_estimators, max_depth = max_depth,  
-#               min_samples_split = min_samples_split, 
-#              min_samples_leaf = min_samples_leaf)
-
-# gridF = GridSearchCV(rf, hyperF, cv = 3, verbose = 1, 
-#                       n_jobs = -1)
-# bestF = gridF.fit(rescaledX_Data, target)
-
-# bestF.best_params_
-# print(bestF.best_params_)
-
-imp_rf = RandomForestClassifier(n_estimators=100,max_depth=15,min_samples_leaf=2,min_samples_split=2)
-# imp_rf = RandomForestClassifier(n_estimators=500,max_depth=8,min_samples_leaf=5,min_samples_split=5)
-imp_rf.fit(rescaledX_Data, target)
-y_pred = imp_rf.predict(rescaledX_test)
-print("Random Forest classifier has accuracy of: ", imp_rf.score(rescaledX_test, y_test))
-
-# test_pred = imp_rf.predict(rescaledX_testData)
-
-# res = pd.DataFrame({ 'id' : range(1, test_pred.size+1 ,1)})
-# res['Category'] = le.inverse_transform(test_pred)
-# res.to_csv("res4.csv",index=False)
-
-
-rfc = RandomForestClassifier(
-    n_estimators=1600,
-    min_samples_split=15,
-    min_samples_leaf=1,
-    max_features='sqrt',
-    max_depth=110,
-    bootstrap=False)
-
-rfc.fit(rescaledX_train, y_train)
-y_pred = rfc.predict(rescaledX_test)
-print("Random Forest classifier has accuracy of: ", rfc.score(rescaledX_test, y_test))
-
-rfc2 = RandomForestClassifier(
-    n_estimators=1600,
-    min_samples_split=15,
-    min_samples_leaf=1,
-    max_features='sqrt',
-    max_depth=110,
-    bootstrap=False)
-
-rfc2.fit(rescaledX_Data, target)
-y_pred = rfc2.predict(rescaledX_test)
-print("Random Forest classifier has accuracy of: ", rfc2.score(rescaledX_test, y_test))
-
-test_pred = rfc2.predict(rescaledX_testData)
-
-res = pd.DataFrame({ 'id' : range(1, test_pred.size+1 ,1)})
-res['Category'] = le.inverse_transform(test_pred)
-res.to_csv("res7.csv",index=False)
-
-
-
+res = pd.DataFrame({ 'id' : range(1, rf_pred.size+1 ,1)})
+res['rf'] = le.inverse_transform(rf_pred)
+res['lr'] = le.inverse_transform(lr_pred)
+res.to_csv("./output/rflr.csv",index=False)

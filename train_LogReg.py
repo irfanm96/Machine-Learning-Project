@@ -103,7 +103,7 @@ data = data.values
 test_data = test_data.values
 
 # We will split independent variables(x) and dependent variable(y)
-x = data[:,0:12] 
+x = data[:,0:13] 
 y = data[:,13]
 
 #Scaling the data

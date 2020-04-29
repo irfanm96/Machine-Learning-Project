@@ -9,11 +9,11 @@ from sklearn.preprocessing import MinMaxScaler
 # Import scikit-learn metrics module for accuracy calculation
 from sklearn import metrics
 
-def impute_nominal_attributes(data_frame, columns, strategy="most_frequent"):
+def impute_nominal_attributes(data_frame, columns, strategy="constant"):
     impurer = SimpleImputer(strategy=strategy)
     return impurer.fit_transform(data_frame[columns])
 
-def impute_numerical_attributes(data_frame, columns, strategy="mean"):
+def impute_numerical_attributes(data_frame, columns, strategy="median"):
     impute = SimpleImputer(missing_values=np.nan, strategy=strategy)
     return impute.fit_transform(data_frame[columns])
 
@@ -68,7 +68,7 @@ We cannot use ordinal encoder since we dont know which are ordinal in those nomi
 '''
 
 # read training dataset
-data = pd.read_csv('data.csv', delimiter=',')
+data = pd.read_csv('./input/data.csv', delimiter=',')
 # get the labels
 label = data['A16'].tolist()
 # remove the labels from the data frame
@@ -104,7 +104,7 @@ print("Random Forest classifier has accuracy of: ", rf.score(rescaledX_test, y_t
 
 # read training dataset
 # test_data = pd.read_excel('testdata.xlsx', header=None)
-test_data = pd.read_csv('testdata.csv', delimiter=',')
+test_data = pd.read_csv('./input/testdata.csv', delimiter=',')
 # test_data.columns = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'A13', 'A14', 'A15']
 # print(test_data)
 

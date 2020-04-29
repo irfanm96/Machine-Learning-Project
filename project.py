@@ -152,5 +152,5 @@ original_data['A16'] = le.inverse_transform(test_pred)
 
 res = pd.DataFrame({ 'id' : range(1, test_pred.size+1 ,1)})
 res['Category'] = le.inverse_transform(test_pred)
-res.to_csv("res2.csv",index=False)
+res.to_csv("res20.csv",index=False)
 

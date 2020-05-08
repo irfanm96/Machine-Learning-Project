@@ -1,7 +1,7 @@
 id,Category
 1,Success
 2,Success
-3,Failure
+3,Success
 4,Success
 5,Success
 6,Success
@@ -35,7 +35,7 @@ id,Category
 34,Failure
 35,Failure
 36,Failure
-37,Failure
+37,Success
 38,Failure
 39,Failure
 40,Failure
@@ -69,7 +69,7 @@ id,Category
 68,Failure
 69,Failure
 70,Failure
-71,Failure
+71,Success
 72,Failure
 73,Failure
 74,Failure
@@ -117,7 +117,7 @@ id,Category
 116,Failure
 117,Failure
 118,Success
-119,Failure
+119,Success
 120,Success
 121,Success
 122,Success

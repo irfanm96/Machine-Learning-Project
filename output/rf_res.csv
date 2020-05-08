@@ -1,7 +1,7 @@
 id,Category
-1,Failure
+1,Success
 2,Success
-3,Failure
+3,Success
 4,Success
 5,Success
 6,Success
@@ -20,7 +20,7 @@ id,Category
 19,Failure
 20,Failure
 21,Failure
-22,Failure
+22,Success
 23,Failure
 24,Failure
 25,Failure

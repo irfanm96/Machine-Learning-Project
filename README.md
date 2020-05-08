@@ -5,9 +5,7 @@ analyze.py contains the intial analysis, early models and predictions
 
 project.py will train the model and predict the test data
 
-input folder contains Train and Test Datasets
-
-output folder contains Prediction results of differnt models
+input folder contains Train and Test Datasets & output folder contains Prediction results of differnt models
 
 output/Results.csv contains final predictions
 

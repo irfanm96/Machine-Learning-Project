@@ -1,5 +1,5 @@
 id,Category
-1,Success
+1,Failure
 2,Success
 3,Success
 4,Success
@@ -55,7 +55,7 @@ id,Category
 54,Failure
 55,Failure
 56,Failure
-57,Success
+57,Failure
 58,Failure
 59,Failure
 60,Failure
@@ -69,7 +69,7 @@ id,Category
 68,Failure
 69,Failure
 70,Failure
-71,Success
+71,Failure
 72,Failure
 73,Failure
 74,Failure

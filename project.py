@@ -102,6 +102,17 @@ data = data.drop(['A16'],axis=1)
 encode = preprocessing.LabelEncoder()
 label = encode.fit_transform(label)
 
+# Analys    e Class Distribution
+unique, sizes = np.unique(label,return_counts=True)
+print(sizes)
+labels = 'Success', 'Failure'
+colors = ['yellowgreen', 'lightskyblue']
+# Plot pie chart
+plt.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
+plt.axis('equal')
+# # Show Plot
+# plt.show()
+
 #Preprocessing Test and Training Datasets
 data = pre_processing(data)
 test_data = pre_processing( test_data, type='test' )

@@ -256,8 +256,6 @@ print("Best: %f using %s" % (lr_best_score, lr_best_params))
 improved_lr = LogisticRegression(max_iter=100, tol=0.01, C=0.1)
 improved_lr.fit(x_train, y_train)
 #Get the accuracy score of the model
-print("Random Forest testing accuracy: ", improved_lr.score(x_train, y_train))
-print("Random Forest accuracy: ", improved_lr.score(x_test, y_test))
 #Predict test data with Logistic Regression model
 lr_pred = improved_lr.predict(new_TD)
 lr_res = pd.DataFrame({ 'id' : range(1, lr_pred.size+1 ,1)})

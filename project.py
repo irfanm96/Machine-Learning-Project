@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn import preprocessing
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
@@ -32,76 +30,62 @@ def merge_arrays_to_frames(array1, array1_columns, array2, array2_columns):
 
     return pd.concat([a, b], axis=1)
 
-def encode_nominal_attributes(df):
-    df["A1"]=df["A1"].replace('a',1,regex=True)
-    df["A1"]=df["A1"].replace('b',2,regex=True)
+def encode_nominal_attributes(df,nominal_columns):
+    # Identify unique values in each nominal attributes
+    for i in nominal_columns:
+        print(i,np.sort(df[i].unique()))
+    # Unique Values
+    # A1 ['a' 'b']
+    # A3 ['l' 'u' 'y']
+    # A4 ['g' 'gg' 'p']
+    # A6 ['aa' 'c' 'cc' 'd' 'e' 'ff' 'i' 'j' 'k' 'm' 'q' 'r' 'w' 'x']
+    # A8 [False True]
+    # A9 ['bb' 'dd' 'ff' 'h' 'j' 'n' 'o' 'v' 'z']
+    # A11 [False True]
+    # A13 [False True]
+    # A15 ['g' 'p' 's']
 
-    df["A3"]=df["A3"].replace('l',1,regex=True)
-    df["A3"]=df["A3"].replace('u',2,regex=True)
-    df["A3"]=df["A3"].replace('y',3,regex=True)
+    # Create dictionary with unique values 
+    nominal_attributes_values = { 'A1': ['a', 'b'],
+        'A3': ['l', 'u', 'y'],
+        'A4': ['gg', 'g', 'p'],
+        'A6': ['aa','cc', 'ff', 'c', 'd', 'e', 'i', 'j', 'k', 'm', 'q', 'r', 'w', 'x'],
+        'A8': [False, True],
+        'A9': ['bb', 'ff', 'dd', 'h', 'j', 'n', 'o', 'v', 'z'],
+        'A11': [False, True],
+        'A13': [False, True],
+        'A15': ['g', 'p', 's'] }
 
-    df["A4"]=df["A4"].replace('gg',1,regex=True)
-    df["A4"]=df["A4"].replace('g',2,regex=True)
-    df["A4"]=df["A4"].replace('p',3,regex=True)
+    # Replace each nominal attributes value with a unique numerica value 
+    for key, values in nominal_attributes_values.items():
+        for i,value in enumerate(values): 
+            df[key] = df[key].replace(value,i,regex=True)
 
-    df["A6"]=df["A6"].replace('aa',1,regex=True)
-    df["A6"]=df["A6"].replace('cc',2,regex=True)
-    df["A6"]=df["A6"].replace('ff',3,regex=True)
-    df["A6"]=df["A6"].replace('m',4,regex=True)
-    df["A6"]=df["A6"].replace('k',5,regex=True)
-    df["A6"]=df["A6"].replace('j',6,regex=True)
-    df["A6"]=df["A6"].replace('r',7,regex=True)
-    df["A6"]=df["A6"].replace('w',8,regex=True)
-    df["A6"]=df["A6"].replace('q',9,regex=True)
-    df["A6"]=df["A6"].replace('c',10,regex=True)
-    df["A6"]=df["A6"].replace('x',11,regex=True)
-    df["A6"]=df["A6"].replace('i',12,regex=True)
-    df["A6"]=df["A6"].replace('d',13,regex=True)
-    df["A6"]=df["A6"].replace('e',14,regex=True)
-
-    df["A8"]=df["A8"].replace(True,1,regex=True)
-    df["A8"]=df["A8"].replace(False,0,regex=True)
-
-    df["A9"]=df["A9"].replace('v',1,regex=True)
-    df["A9"]=df["A9"].replace('h',2,regex=True)
-    df["A9"]=df["A9"].replace('bb',3,regex=True)
-    df["A9"]=df["A9"].replace('ff',4,regex=True)
-    df["A9"]=df["A9"].replace('j',5,regex=True)
-    df["A9"]=df["A9"].replace('z',6,regex=True)
-    df["A9"]=df["A9"].replace('o',7,regex=True)
-    df["A9"]=df["A9"].replace('dd',8,regex=True)
-    df["A9"]=df["A9"].replace('n',9,regex=True)
-
-    df["A11"]=df["A11"].replace(True,1,regex=True)
-    df["A11"]=df["A11"].replace(False,0,regex=True)
-
-    df["A13"]=df["A13"].replace(True,1,regex=True)
-    df["A13"]=df["A13"].replace(False,0,regex=True)
-
-    df["A15"]=df["A15"].replace('g',1,regex=True)
-    df["A15"]=df["A15"].replace('s',2,regex=True)
-    df["A15"]=df["A15"].replace('p',3,regex=True)
-    
     return df
 
-def pre_processing(original, type='train'):
-    #Replacing non-standard data with NaN
-    original.replace({'?': np.NaN}, inplace=True)
-    #Drop rows if all are missing values
-    original.dropna(axis=0, thresh=1, inplace=True)
-    #Reset the index in data frame
-    original.reset_index(inplace=True)
-    original.drop(['index'], axis=1, inplace=True)
+def pre_processing(df, type='train'):
+    # Replacing non-standard data with NaN
+    df.replace({'?': np.NaN}, inplace=True)
+    # Drop rows if all are missing values
+    df.dropna(axis=0, thresh=1, inplace=True)
+    # Reset the index in data frame
+    df.reset_index(inplace=True)
+    df.drop(['index'], axis=1, inplace=True)
 
+    # # Identify nominal and numeric attributes
+    # print(df.info())
     nominal_columns = ['A1', 'A3', 'A4', 'A6', 'A8', 'A9', 'A11', 'A13', 'A15']
     numerical_columns = ['A2', 'A5', 'A7', 'A10', 'A12', 'A14']
-
-    x = impute_nominal_attributes(original, nominal_columns)
-    y = impute_numerical_attributes(original, numerical_columns)
-
+    
+    x = impute_nominal_attributes(df, nominal_columns)
+    y = impute_numerical_attributes(df, numerical_columns)
     k = merge_arrays_to_frames(x, nominal_columns, y, numerical_columns)
-
-    df = encode_nominal_attributes(pd.DataFrame(k))
+    
+    df = encode_nominal_attributes( pd.DataFrame(k), nominal_columns )
+    # # Inspect data after pre processing
+    # print(df.dtypes)
+    # print(df.head(20))
+    # print(df.head(20))
 
     return df
 
@@ -139,6 +123,8 @@ cmap = sns.diverging_palette(220, 10, as_cmap=True)
 #Draw the heatmap with the mask and correct aspect ratio
 sns.heatmap(corr, annot=True,annot_kws={"size": 7}, mask=mask, cmap=cmap, center=0,
             square=True, linewidths=.5, cbar_kws={"shrink": .8})
+
+# plt.show()
 
 #Feature A4,A3 highly correlated, this might lead to multicollinearity
 #Feature A1 has very less correlation with variable A16 which is our dependent variable

@@ -10,6 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier 
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
 
 def impute_nominal_attributes(data_frame, columns, strategy="most_frequent"):
     impurer = SimpleImputer(strategy=strategy)
@@ -138,12 +139,23 @@ new_TD = scale.fit_transform(test_data)
 #70% training and 30% test
 x_train, x_test, y_train, y_test = train_test_split(new_x, y, test_size=0.3,random_state=109)
 
+#Initialize a Naive Bayes Classifier and fit model on train set
+nb = GaussianNB()
+nb.fit(x_train, y_train)
+nb_predicted = nb.predict(x_test)
+#Get the accuracy score of the model
+print("Naive Bayes training accuracy: ", nb.score(x_train, y_train))
+print("Naive Bayes testing accuracy: ", nb.score(x_test, y_test))
+#Confusion matrix of the model
+print(confusion_matrix(y_test,nb_predicted))
+
 #Initialize a Logistic Regression Classifier and fit model on train set
 lr = LogisticRegression()
 lr.fit(x_train, y_train)
 lr_predicted = lr.predict(x_test)
 #Get the accuracy score of the model
-print("Logistic Regression Accuracy: ", lr.score(x_test,y_test))
+print("Logistic Regression training accuracy: ", lr.score(x_train, y_train))
+print("Logistic Regression testing accuracy: ", lr.score(x_test,y_test))
 #Confusion matrix of the model
 print(confusion_matrix(y_test,lr_predicted))
 
@@ -152,7 +164,8 @@ rf = RandomForestClassifier()
 rf.fit(x_train, y_train)
 rf_predicted = rf.predict(x_test)
 #Get the accuracy score of the model
-print("Random Forest accuracy: ", rf.score(x_test, y_test))
+print("Random Forest training accuracy: ", rf.score(x_train, y_train))
+print("Random Forest testing accuracy: ", rf.score(x_test, y_test))
 #Confusion matrix of the model
 print(confusion_matrix(y_test,rf_predicted))
 
@@ -161,18 +174,26 @@ kn = KNeighborsClassifier(n_neighbors=5)
 kn.fit(x_train, y_train)
 kn_predicted = kn.predict(x_test)
 #Get the accuracy score of the model
-print("K Neighbors accuracy: ", kn.score(x_test, y_test))
+print("K Neighbors training accuracy: ", kn.score(x_train, y_train))
+print("K Neighbors testing accuracy: ", kn.score(x_test, y_test))
 #Confusion matrix of the model
 print(confusion_matrix(y_test,kn_predicted))
 
-#Initialize a Naive Bayes Classifier and fit model on train set
-nb = GaussianNB()
-nb.fit(x_train, y_train)
-nb_predicted = nb.predict(x_test)
+#Initialize Linear SVC Classifier and fit model on train set
+svc = SVC(kernel='linear')
+svc.fit(x_train, y_train)
+svc_predicted = svc.predict(x_test)
 #Get the accuracy score of the model
-print("Naive Bayes accuracy: ", nb.score(x_test, y_test))
+print("SVC training accuracy: ", svc.score(x_train, y_train))
+print("SVC testing accuracy: ", svc.score(x_test, y_test))
 #Confusion matrix of the model
-print(confusion_matrix(y_test,nb_predicted))
+print(confusion_matrix(y_test,svc_predicted))
+
+#Predict test data with Naive Bayes model
+nb_pred = nb.predict(new_TD)
+nb_res = pd.DataFrame({ 'id' : range(1, nb_pred.size+1 ,1)})
+nb_res['Category'] = encode.inverse_transform(nb_pred)
+nb_res.to_csv("./output/nb_res.csv",index=False)
 
 #Predict test data with Logistic Regression model
 lr_pred = lr.predict(new_TD)
@@ -192,8 +213,9 @@ kn_res = pd.DataFrame({ 'id' : range(1, kn_pred.size+1 ,1)})
 kn_res['Category'] = encode.inverse_transform(kn_pred)
 kn_res.to_csv("./output/kn_res.csv",index=False)
 
-#Predict test data with Naive Bayes model
-nb_pred = nb.predict(new_TD)
-nb_res = pd.DataFrame({ 'id' : range(1, nb_pred.size+1 ,1)})
-nb_res['Category'] = encode.inverse_transform(nb_pred)
-nb_res.to_csv("./output/nb_res.csv",index=False)
+#Predict test data with Linear SVC model
+svc_pred = svc.predict(new_TD)
+svc_res = pd.DataFrame({ 'id' : range(1, svc_pred.size+1 ,1)})
+svc_res['Category'] = encode.inverse_transform(svc_pred)
+svc_res.to_csv("./output/svc_res.csv",index=False)
+

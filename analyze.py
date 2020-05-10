@@ -44,29 +44,30 @@ def discretize_numerical_attributes(data_frame, columns):
     data_frame[columns].dtype = float
     return data_frame[columns]
 
-def pre_processing(original, type='train'):
+def pre_processing(df, type='train'):
     #Replacing non-standard data with NaN
-    original.replace({'?': np.NaN}, inplace=True)
+    df.replace({'?': np.NaN}, inplace=True)
     #Drop rows if all are missing values
-    original.dropna(axis=0, thresh=1, inplace=True)
+    df.dropna(axis=0, thresh=1, inplace=True)
     #Reset the index in data frame
-    original.reset_index(inplace=True)
-    original.drop(['index'], axis=1, inplace=True)
+    df.reset_index(inplace=True)
+    df.drop(['index'], axis=1, inplace=True)
 
     #Inspect missing values in the dataset
-    print(original.isna().sum())
-
+    print(df.isna().sum())
+    # Identify nominal and numeric attributes
+    print(df.info())
+    
     nominal_columns = ['A1', 'A3', 'A4', 'A6', 'A8', 'A9', 'A11', 'A13', 'A15']
     numerical_columns = ['A2', 'A5', 'A7', 'A10', 'A12', 'A14']
 
-    x = impute_nominal_attributes(original, nominal_columns)
-    y = impute_numerical_attributes(original, numerical_columns)
-
-    #Check if any variables have any missing values after imputation
-    print(original.isna().sum())
-
+    x = impute_nominal_attributes(df, nominal_columns)
+    y = impute_numerical_attributes(df, numerical_columns)
     k = merge_arrays_to_frames(x, nominal_columns, y, numerical_columns)
     
+    #Check if any variables have any missing values after imputation
+    print(pd.DataFrame(k).isna().sum())
+
     no = encode_nominal_attributes(k, nominal_columns, type=type)
     nu = discretize_numerical_attributes(k, numerical_columns)
 

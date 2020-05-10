@@ -124,14 +124,14 @@ cmap = sns.diverging_palette(220, 10, as_cmap=True)
 sns.heatmap(corr, annot=True,annot_kws={"size": 7}, mask=mask, cmap=cmap, center=0,
             square=True, linewidths=.5, cbar_kws={"shrink": .8})
 
-# plt.show()
+plt.show()
 
 #Feature A4,A3 highly correlated, this might lead to multicollinearity
-#Feature A1 has very less correlation with variable A16 which is our dependent variable
+#Features A1,A9 have very less correlation with variable A16 which is our dependent variable
 
 #So we decide to drop features A1,A4
-data = data.drop(['A4','A1'],axis=1)
-test_data = test_data.drop(['A4','A1'],axis=1)
+data = data.drop(['A4','A1','A9'],axis=1)
+test_data = test_data.drop(['A4','A1','A9'],axis=1)
 
 corr = data.corr()
 mask = np.zeros_like(corr, dtype=np.bool)

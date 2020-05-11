@@ -40,3 +40,9 @@ Run it with python 3.6.*
 ```
 
 - Start/Run development files.
+
+```
+   $python project.py
+   or
+   $python analyze.py
+```

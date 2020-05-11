@@ -211,39 +211,41 @@ print(confusion_matrix(y_test,rf_predicted))
 # lr_res['Category'] = encode.inverse_transform(lr_pred)
 # lr_res.to_csv("./output/lr_Result.csv",index=False)
 
-#Predict test data with Random Forest model
-rf_pred = rf.predict(new_TD)
-rf_res = pd.DataFrame({ 'id' : range(1, rf_pred.size+1 ,1)})
-rf_res['Category'] = encode.inverse_transform(rf_pred)
-rf_res.to_csv("./output/rf_Result.csv",index=False)
-
-# Grid searching and finding Best model parameters for Random Forest Model
-# Define the grid of values for n_estimators, max_depth, min_samples_split, min_samples_leaf
-n_estimators = [100, 300, 500, 800, 1200, 1500]
-max_depth = [5, 8, 15, 25, 30]
-min_samples_split = [2, 5, 10, 15, 100]
-min_samples_leaf = [1, 2, 5, 10] 
-#Create a dictionary
-rf_param_grid = dict(n_estimators = n_estimators, max_depth = max_depth,
-                min_samples_split = min_samples_split, 
-                min_samples_leaf = min_samples_leaf)
-#Instantiate GridSearchCV with the required parameters
-rf_grid_model = GridSearchCV(estimator=rf, param_grid=rf_param_grid, cv = 3, verbose = 1, n_jobs = -1)
-#Fit data to grid_model
-rf_grid_model_result = rf_grid_model.fit(x_train, y_train)
-
-#Grid model results
-rf_best_score, rf_best_params = rf_grid_model_result.best_score_,rf_grid_model_result.best_params_
-print("Best: %f using %s" % (rf_best_score,rf_best_params))
-
-# #Initialize a Random Forest Classifier with best fit model parameters and fit model on train set
-# improved_rf = RandomForestClassifier(n_estimators=500)
-# improved_rf.fit(x_train, y_train)
 # #Predict test data with Random Forest model
-# rf_pred = improved_rf.predict(new_TD)
+# rf_pred = rf.predict(new_TD)
 # rf_res = pd.DataFrame({ 'id' : range(1, rf_pred.size+1 ,1)})
 # rf_res['Category'] = encode.inverse_transform(rf_pred)
-# rf_res.to_csv("./output/improved_rf_res.csv",index=False)
+# rf_res.to_csv("./output/rf_Result.csv",index=False)
+
+# # Grid searching and finding Best model parameters for Random Forest Model
+# # Define the grid of values for n_estimators, max_depth, min_samples_split, min_samples_leaf
+# n_estimators = [100, 300, 500, 800, 1200, 1500]
+# max_depth = [5, 8, 15, 25, 30]
+# min_samples_split = [2, 5, 10, 15, 100]
+# min_samples_leaf = [1, 2, 5, 10] 
+# #Create a dictionary
+# rf_param_grid = dict(n_estimators = n_estimators, max_depth = max_depth,
+#                 min_samples_split = min_samples_split, 
+#                 min_samples_leaf = min_samples_leaf)
+# #Instantiate GridSearchCV with the required parameters
+# rf_grid_model = GridSearchCV(estimator=rf, param_grid=rf_param_grid, cv = 3, verbose = 1, n_jobs = -1)
+# #Fit data to grid_model
+# rf_grid_model_result = rf_grid_model.fit(x_train, y_train)
+
+# #Grid model results
+# rf_best_score, rf_best_params = rf_grid_model_result.best_score_,rf_grid_model_result.best_params_
+# print("Best: %f using %s" % (rf_best_score,rf_best_params))
+
+# # Best: 0.882086 using {'max_depth': 15, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 500}
+
+#Initialize a Random Forest Classifier with best fit model parameters and fit model on train set
+improved_rf = RandomForestClassifier( max_depth=15, min_samples_leaf=2, min_samples_split=2, n_estimators=500 )
+improved_rf.fit(x_train, y_train)
+#Predict test data with Random Forest model
+rf_pred = improved_rf.predict(new_TD)
+rf_res = pd.DataFrame({ 'id' : range(1, rf_pred.size+1 ,1)})
+rf_res['Category'] = encode.inverse_transform(rf_pred)
+rf_res.to_csv("./output/improved_rf_res.csv",index=False)
 
 # #Grid searching and finding Best model parameters for Random Forest Model
 # #Define the grid of values for tol and max_iter
@@ -260,6 +262,8 @@ print("Best: %f using %s" % (rf_best_score,rf_best_params))
 # #Grid model results
 # lr_best_score, lr_best_params = lr_grid_model_result.best_score_,lr_grid_model_result.best_params_
 # print("Best: %f using %s" % (lr_best_score, lr_best_params))
+
+# # Best: 0.855031 using {'C': 0.1, 'max_iter': 100, 'tol': 0.01}
 
 #Initialize a Logistic Regression Classifier with best fit model parameters and fit model on train set
 improved_lr = LogisticRegression(max_iter=100, tol=0.01, C=0.1)
